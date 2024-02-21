@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "axios": "^1.6.7",
-    "chatgpt": "^5.2.2"
+    "chatgpt": "^5.2.2",
+    "openai": "^4.28.0"
   }
 }
