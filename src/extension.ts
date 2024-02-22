@@ -21,7 +21,6 @@ export function activate(context: vscode.ExtensionContext) {
 		const selectedText = editor.document.getText(selection);
 		const finalPrompt = prompt + selectedText;
 
-		
 		vscode.window.showInformationMessage(finalPrompt);
 	});
 
