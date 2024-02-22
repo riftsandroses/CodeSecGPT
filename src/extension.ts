@@ -1,8 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const prompt = 'ENTER_PRE-DETERMINED_PROMPT_HERE';
+const prompt = 'Fix syntax in this code: ';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -17,11 +18,26 @@ export function activate(context: vscode.ExtensionContext) {
 		if(!editor) {
 			return;
 		}
+
 		const selection = editor.selection;
 		const selectedText = editor.document.getText(selection);
 		const finalPrompt = prompt + selectedText;
 
-		vscode.window.showInformationMessage(finalPrompt);
+		try {
+			const apiKey = 'AIzaSyCfaImFDRU3zonTqh7cR1HKWBS9cowngeA';
+
+			const genAI = new GoogleGenerativeAI(apiKey);
+			const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+			const result = await model.generateContent(finalPrompt);
+			const response = await result.response;
+
+			const formattedContent = response.text();
+
+			await vscode.window.showInformationMessage(formattedContent);
+		} catch (error: unknown) {
+			await vscode.window.showErrorMessage('Error fetching Gemini response: ' + error);
+		}
 	});
 
 	context.subscriptions.push(disposable);
