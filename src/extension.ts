@@ -1,19 +1,10 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const prompt = 'ENTER_YOUR_PRE-DETERMINED_PROMPT_HERE';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
 	let disposable = vscode.commands.registerCommand('codesecgpt.useCodeSecGPT', async () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
 		const editor = vscode.window.activeTextEditor;
 		if(!editor) {
 			return;
@@ -21,20 +12,34 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const selection = editor.selection;
 		const selectedText = editor.document.getText(selection);
+		const message = "Connecting to CodeSecGPT........";
+		vscode.window.showInformationMessage(message);
 		const finalPrompt = prompt + selectedText;
 
 		try {
-			const apiKey = 'ENTER_YOUR_GEMINI_API_KEY_HERE_WITHOUT_LEADING/TRAILING_SPACES';
-
+			const apiKey = 'ENTER_YOUR_GEMINI_API_KEY_HERE_WITHOUT_ANY_LEADING/TRAILING_SPACES';
 			const genAI = new GoogleGenerativeAI(apiKey);
 			const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
 			const result = await model.generateContent(finalPrompt);
-			const response = await result.response;
-
+			const response = result.response;
 			const formattedContent = response.text();
 
-			await vscode.window.showInformationMessage(formattedContent);
+			const message = "Connection with CodeSecGPT Successful";
+			vscode.window.showInformationMessage(message);
+			const displayText = "Do you want to replace '" + selectedText + "' with '" + formattedContent + "' ?";
+			const replaceLineButton: vscode.QuickPickItem = { label: 'Replace Line'};
+			const cancelButton: vscode.QuickPickItem = { label: 'Cancel'};
+			const answer = await vscode.window.showQuickPick([replaceLineButton, cancelButton], {
+			title: `${displayText}`,
+			});
+			if (answer === replaceLineButton) {
+				editor.edit((editBuilder) => {
+					editBuilder.replace(selection, formattedContent);
+					vscode.window.showInformationMessage('Code replaced successfully');
+				}).then(() => {
+					editor.selection = new vscode.Selection(selection.start.with(selection.start.line + 1, 0), selection.start.with(selection.start.line + 1, 0));
+				});
+			}
 		} catch (error: unknown) {
 			await vscode.window.showErrorMessage('Error fetching Gemini response: ' + error);
 		}
