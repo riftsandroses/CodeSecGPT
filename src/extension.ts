@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const prompt = 'Fix syntax in this code: ';
+const prompt = 'ENTER_YOUR_PRE-DETERMINED_PROMPT_HERE';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const finalPrompt = prompt + selectedText;
 
 		try {
-			const apiKey = 'AIzaSyCfaImFDRU3zonTqh7cR1HKWBS9cowngeA';
+			const apiKey = 'ENTER_YOUR_GEMINI_API_KEY_HERE_WITHOUT_LEADING/TRAILING_SPACES';
 
 			const genAI = new GoogleGenerativeAI(apiKey);
 			const model = genAI.getGenerativeModel({ model: "gemini-pro" });
