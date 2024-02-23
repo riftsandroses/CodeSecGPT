@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const prompt = 'ENTER_YOUR_PRE-DETERMINED_PROMPT_HERE';
+const prompt = 'ENTER_THE_PRE-DETERMINED_PROMPT_HERE';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('codesecgpt.useCodeSecGPT', async () => {
@@ -15,9 +16,14 @@ export function activate(context: vscode.ExtensionContext) {
 		const message = "Connecting to CodeSecGPT........";
 		vscode.window.showInformationMessage(message);
 		const finalPrompt = prompt + selectedText;
-
+		
+		const logFilePath = `${context.extensionPath}/extension.log`;
+		const appendLog = (logMessage: string) => {
+			fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${logMessage}\n`);
+		};
+		appendLog(`Selected text: ${selectedText}`);
 		try {
-			const apiKey = 'ENTER_YOUR_GEMINI_API_KEY_HERE_WITHOUT_ANY_LEADING/TRAILING_SPACES';
+			const apiKey = 'ENTER_GEMINI_API_KEY_HERE';
 			const genAI = new GoogleGenerativeAI(apiKey);
 			const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 			const result = await model.generateContent(finalPrompt);
@@ -36,17 +42,21 @@ export function activate(context: vscode.ExtensionContext) {
 				editor.edit((editBuilder) => {
 					editBuilder.replace(selection, formattedContent);
 					vscode.window.showInformationMessage('Code replaced successfully');
+
+					appendLog(`Generated content: ${formattedContent}`);
+
 				}).then(() => {
 					editor.selection = new vscode.Selection(selection.start.with(selection.start.line + 1, 0), selection.start.with(selection.start.line + 1, 0));
 				});
 			}
 		} catch (error: unknown) {
 			await vscode.window.showErrorMessage('Error fetching Gemini response: ' + error);
+
+			appendLog(`Error: ${error}`);
 		}
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
