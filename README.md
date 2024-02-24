@@ -1,4 +1,4 @@
-# CodeSecGPT - Enterprise (Visual Studio Code Extension)
+# CodeSecGPT (A Visual Studio Code Extension)
 
 ![coDESECGPT](https://github.com/riftsandroses/CodeSecGPT/assets/63180210/435444ad-c2fe-4f75-95e6-e04308ea741e)
 
