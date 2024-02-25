@@ -4,6 +4,21 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const prompt = 'ENTER_THE_PRE-DETERMINED_PROMPT_HERE';
 
+let apiKey: string | undefined;
+async function ensureApiKey(): Promise<string> {
+	if(!apiKey) {
+		apiKey = await vscode.window.showInputBox({
+			prompt: 'Enter your Gemini API Key: ',
+			placeHolder: 'Enter your API Key here'
+		});
+
+		if(!apiKey) {
+			throw new Error('API Key is required');
+		}
+	}
+	return apiKey;
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('codesecgpt.useCodeSecGPT', async () => {
 		const editor = vscode.window.activeTextEditor;
@@ -23,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 		};
 		appendLog(`Selected text: ${selectedText}`);
 		try {
-			const apiKey = 'ENTER_GEMINI_API_KEY_HERE';
+			const apiKey = await ensureApiKey();
 			const genAI = new GoogleGenerativeAI(apiKey);
 			const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 			const result = await model.generateContent(finalPrompt);
