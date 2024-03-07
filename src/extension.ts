@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const prompt = 'ENTER_THE_PRE-DETERMINED_PROMPT_HERE';
+const prompt = 'Fix the security vulnerabilities in this code and only return the fixed code as output: ';
 
 let apiKey: string | undefined;
 async function ensureApiKey(): Promise<string> {
@@ -49,23 +49,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 			const message = "Connection with CodeSecGPT Successful";
 			vscode.window.showInformationMessage(message);
-			const displayText = "Do you want to replace '" + selectedText + "' with '" + formattedContent + "' ?";
-			const replaceLineButton: vscode.QuickPickItem = { label: 'Replace Line'};
-			const cancelButton: vscode.QuickPickItem = { label: 'Cancel'};
-			const answer = await vscode.window.showQuickPick([replaceLineButton, cancelButton], {
-			title: `${displayText}`,
-			});
-			if (answer === replaceLineButton) {
-				editor.edit((editBuilder) => {
-					editBuilder.replace(selection, formattedContent);
-					vscode.window.showInformationMessage('Code replaced successfully');
+			
+			const panel = vscode.window.createWebviewPanel(
+				'Front-end',
+				'CodeSecGPT',
+				vscode.ViewColumn.Beside,
+				{enableScripts: true}
+			);
 
-					appendLog(`Generated content: ${formattedContent}`);
+			panel.webview.html = getWebviewContent(finalPrompt, formattedContent);
 
-				}).then(() => {
-					editor.selection = new vscode.Selection(selection.start.with(selection.start.line + 1, 0), selection.start.with(selection.start.line + 1, 0));
-				});
-			}
+			panel.webview.onDidReceiveMessage(
+				message => {
+					if (message.command === 'replace') {
+						editor.edit(editBuilder => {
+							editBuilder.replace(selection, message.content);
+						}).then(success => {
+							if (success) {
+								vscode.window.showInformationMessage('Text replaced successfully.');
+							} else {
+								vscode.window.showErrorMessage('Failed to replace text.');
+							}
+						});
+					}
+				},
+				undefined,
+				context.subscriptions
+			);
 		} catch (error: unknown) {
 			await vscode.window.showErrorMessage('Error fetching Gemini response: ' + error);
 
@@ -74,6 +84,47 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+function getWebviewContent(finalPrompt: string, formattedContent: string): string {
+    const escapedFormattedContent = formattedContent
+        .replace(/\\/g, '\\\\')
+        .replace(/`/g, '\\`')
+        .replace(/\$/g, '\\$');
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Bubbles</title>
+    <style>
+        /* Styles for your chat bubbles */
+        .bubble {
+            margin: 10px;
+            padding: 8px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <div class="bubble">${finalPrompt}</div>
+        <div class="bubble">${escapedFormattedContent} <button id="replaceBtn">Replace</button></div>
+    </div>
+    <script>
+        const vscode = acquireVsCodeApi();
+        const replaceBtn = document.getElementById('replaceBtn');
+        replaceBtn.addEventListener('click', () => {
+            vscode.postMessage({
+                command: 'replace',
+                content: \`${escapedFormattedContent}\`
+            });
+        });
+    </script>
+</body>
+</html>`;
 }
 
 export function deactivate() {}
