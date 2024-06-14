@@ -4,19 +4,19 @@
 
 **Secure your code with the power of Google's Gemini-Pro LLM!**
 
-CodeSecGPT-Enterprise is a VSCode extension that leverages the advanced capabilities of Google's Gemini-Pro language model to help you identify and fix security vulnerabilities in your code. With its intuitive interface and seamless integration, CodeSecGPT-Enterprise empowers you to write more secure code and streamline your development workflow.
+CodeSecGPT is a VSCode extension that leverages the advanced capabilities of Google's Gemini-Pro language model to help you identify and fix security vulnerabilities in your code. With its intuitive interface and seamless integration, CodeSecGPT empowers you to write more secure code and streamline your development workflow.
 
 ## Features
 
-* **AI-powered vulnerability detection:** CodeSecGPT-Enterprise analyzes your code using Gemini-Pro, pinpointing potential security issues based on its vast knowledge of code patterns and common vulnerabilities.
+* **AI-powered vulnerability detection:** CodeSecGPT analyzes your code using Gemini-Pro, pinpointing potential security issues based on its vast knowledge of code patterns and common vulnerabilities.
   
-* **Actionable suggestions:** CodeSecGPT-Enterprise doesn't just highlight vulnerabilities; it provides tailored suggestions for fixing them, guiding you towards more secure coding practices.
+* **Actionable suggestions:** CodeSecGPT doesn't just highlight vulnerabilities; it provides tailored suggestions for fixing them, guiding you towards more secure coding practices.
   
-* **Seamless integration:** CodeSecGPT-Enterprise works directly within your VSCode environment, offering real-time feedback as you code.
+* **Seamless integration:** CodeSecGPT works directly within your VSCode environment, offering real-time feedback as you code.
   
 * **Customization options:** You can fine-tune the extension's behavior to match your specific coding style and preferences.
   
-* **Change logging:** All code modifications suggested by CodeSecGPT-Enterprise and applied by the user are automatically logged for traceability and audit purposes.
+* **Change logging:** All code modifications suggested by CodeSecGPT and applied by the user are automatically logged for traceability and audit purposes.
 
 ## Requirements
 
